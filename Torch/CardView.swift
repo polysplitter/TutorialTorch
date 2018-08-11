@@ -24,7 +24,7 @@ class CardView: UIView {
     }
     
     func defaultInit() {
-        self.backgroundColor = .blue
+        self.backgroundColor = .white
         
         for v in [imageView, nameLabel, ageLabel] {
             v.translatesAutoresizingMaskIntoConstraints = false
@@ -35,7 +35,7 @@ class CardView: UIView {
         NSLayoutConstraint(item: imageView, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 0).isActive = true
         NSLayoutConstraint(item: imageView, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1, constant: 0).isActive = true
         NSLayoutConstraint(item: imageView, attribute: .right, relatedBy: .equal, toItem: self, attribute: .right, multiplier: 1, constant: 0).isActive = true
-        NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: self, attribute: .height, multiplier: 0.6, constant: 0).isActive = true
+        NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: self, attribute: .height, multiplier: 0.8, constant: 0).isActive = true
         
         // Name Label
         NSLayoutConstraint(item: nameLabel, attribute: .top, relatedBy: .equal, toItem: imageView, attribute: .bottom, multiplier: 1, constant: 0).isActive = true
@@ -52,5 +52,11 @@ class CardView: UIView {
         
         ageLabel.font = UIFont(name: "HelveticaNeue-Light", size: 17)
         ageLabel.textAlignment = .right
+        
+        self.layer.cornerRadius = 10
+        self.clipsToBounds = true
+        
+        self.imageView.contentMode = .scaleAspectFill
+        self.imageView.clipsToBounds = true
     }
 }
