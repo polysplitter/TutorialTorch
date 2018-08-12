@@ -34,26 +34,49 @@ class CardStack: UIView {
         cards.append(card)
         self.sendSubviewToBack(card)
         
-        setupTransforms()
+        setupTransforms(0.0)
         
         if cards.count == 1 {
             card.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(pan(gesture:))))
         }
     }
     
-    func setupTransforms() {
+    func setupTransforms(_ percentCompletion: Double) {
+        let translationDelta: CGFloat = 4
+        
         for (i, card) in cards.enumerated() {
             if i == 0 { continue; }
             
-            var transform = CGAffineTransform.identity
+            var translationA, rotationA, scaleA: CGFloat!
+            var translationB, rotationB, scaleB: CGFloat!
             
             if i % 2 == 0 {
-                transform = CGAffineTransform(translationX: CGFloat(i) * 4, y: 0)
-                .rotated(by: CGFloat(Double.pi)/80*CGFloat(i))
+                translationA = CGFloat(i)*translationDelta
+                rotationA = CGFloat(Double.pi)/80*CGFloat(i)
+                
+                translationB = -CGFloat(i - 1)*translationDelta
+                rotationB = -CGFloat(Double.pi)/80*CGFloat(i - 1)
             } else {
-                transform = CGAffineTransform(translationX: -CGFloat(i) * 4, y: 0)
-                .rotated(by: -CGFloat(Double.pi)/80*CGFloat(i))
+                translationA = -CGFloat(i)*translationDelta
+                rotationA = -CGFloat(Double.pi)/80*CGFloat(i)
+                
+                translationB = CGFloat(i - 1)*translationDelta
+                rotationB = CGFloat(Double.pi)/80*CGFloat(i - 1)
             }
+            
+            scaleA = 1-CGFloat(i)*0.05
+            scaleB = 1-CGFloat(i-1)*0.05
+            
+            let translation = translationA*(1-CGFloat(percentCompletion))+translationB*CGFloat(percentCompletion)
+            let rotation = rotationA*(1-CGFloat(percentCompletion))+rotationB*CGFloat(percentCompletion)
+            let scale = scaleA*(1-CGFloat(percentCompletion))+scaleB*CGFloat(percentCompletion)
+            
+            var transform = CGAffineTransform.identity
+            
+            transform = CGAffineTransform(translationX: translation, y: 0)
+                .rotated(by: rotation)
+                .scaledBy(x: scale, y: scale)
+            
             card.transform = transform
         }
     }
@@ -66,6 +89,10 @@ class CardStack: UIView {
         var percent = translation.x / self.bounds.midX
         percent = min(percent, 1)
         percent = max(percent, -1)
+        
+        UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1, options: [], animations: {
+            self.setupTransforms(abs(Double(percent)))
+        }, completion: nil)
         
         var transform = CGAffineTransform.identity
         transform = CGAffineTransform(translationX: translation.x, y: translation.y)
