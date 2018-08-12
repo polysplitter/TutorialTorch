@@ -59,6 +59,24 @@ class CardStack: UIView {
     }
     
     @objc func pan(gesture: UIPanGestureRecognizer) {
-        puts("foo")
+        let card = gesture.view! as! CardView
+        
+        let translation = gesture.translation(in: self)
+        
+        var percent = translation.x / self.bounds.midX
+        percent = min(percent, 1)
+        percent = max(percent, -1)
+        
+        var transform = CGAffineTransform.identity
+        transform = CGAffineTransform(translationX: translation.x, y: translation.y)
+        .rotated(by: CGFloat(Double.pi)*percent/20)
+        
+        card.transform = transform
+        
+        if gesture.state == .ended {
+            UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1, options: [], animations: {
+                card.transform = CGAffineTransform.identity
+            }, completion: nil)
+        }
     }
 }
