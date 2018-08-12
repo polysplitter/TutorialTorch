@@ -82,6 +82,19 @@ class CardStack: UIView {
         }
     }
     
+    func setupGestures() {
+        for card in cards {
+            let gestures = card.gestureRecognizers ?? []
+            for gesture in gestures {
+                card.removeGestureRecognizer(gesture)
+            }
+        }
+        
+        if let firstCard = cards.first {
+            firstCard.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(pan(gesture:))))
+        }
+    }
+    
     @objc func pan(gesture: UIPanGestureRecognizer) {
         let card = gesture.view! as! CardView
         
@@ -117,30 +130,54 @@ class CardStack: UIView {
         card.transform = transform
         
         if gesture.state == .ended {
+            
             let velocity = gesture.velocity(in: self)
             
-            let normVelX = -velocity.x / translation.x
-            let normVelY = -velocity.y / translation.y
+            let percentBlock = {
+                self.cards.remove(at: self.cards.index(of: card)!)
+                self.setupGestures()
+                card.removeGestureRecognizer(card.gestureRecognizers![0])
+                
+                let normVelX = velocity.x / translation.x / 10
+                let normVelY = velocity.y / translation.y / 10
+                
+                UIView.animate(withDuration: 1.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: normVelX, options: [], animations: {
+                    card.center.x = translation.x * 10
+                }, completion: nil)
+                
+                UIView.animate(withDuration: 1.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: normVelY, options: [], animations: {
+                    card.center.y = translation.y * 10
+                }, completion: nil)
+            }
             
-            UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: normVelX, options: [], animations: {
-                var transform  = CGAffineTransform.identity
-                transform = CGAffineTransform(translationX: 0, y: translation.y)
-                card.transform = transform
-            }, completion: nil)
-            
-            UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: normVelY, options: [], animations: {
-                var transform  = CGAffineTransform.identity
-                transform = CGAffineTransform(translationX: 0, y: 0)
-                card.transform = transform
-            }, completion: nil)
+            if percent > 0.2 {
+                percentBlock()
+            } else if percent < -0.2 {
+                percentBlock()
+            } else {
+                let normVelX = -velocity.x / translation.x
+                let normVelY = -velocity.y / translation.y
+                
+                UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
+                    card.likeLabel.alpha = 0
+                    card.nopeLabel.alpha = 0
+                }, completion: nil)
+                
+                UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: normVelX, options: [], animations: {
+                    var transform  = CGAffineTransform.identity
+                    transform = CGAffineTransform(translationX: 0, y: translation.y)
+                    card.transform = transform
+                }, completion: nil)
+                
+                UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: normVelY, options: [], animations: {
+                    var transform  = CGAffineTransform.identity
+                    transform = CGAffineTransform(translationX: 0, y: 0)
+                    card.transform = transform
+                }, completion: nil)
+            }
             
             UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 1, options: [], animations: {
                 self.setupTransforms(0)
-            }, completion: nil)
-            
-            UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
-                card.likeLabel.alpha = 0
-                card.nopeLabel.alpha = 0
             }, completion: nil)
         }
     }
