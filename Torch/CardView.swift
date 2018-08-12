@@ -9,6 +9,9 @@ class CardView: UIView {
         }
     }
     
+    let likeLabel = StatusPill()
+    let nopeLabel = StatusPill()
+    
     let imageView = UIImageView()
     let nameLabel = UILabel()
     let ageLabel = UILabel()
@@ -58,5 +61,19 @@ class CardView: UIView {
         
         self.imageView.contentMode = .scaleAspectFill
         self.imageView.clipsToBounds = true
+        
+        for v in [nopeLabel, likeLabel] {
+            self.addSubview(v)
+            v.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint(item: v, attribute: .centerX, relatedBy: .equal, toItem: self, attribute: .centerX, multiplier: 1, constant: 0).isActive = true
+            NSLayoutConstraint(item: v, attribute: .centerY, relatedBy: .equal, toItem: self, attribute: .centerY, multiplier: 1, constant: 0).isActive = true
+            v.alpha = 0
+        }
+        
+        nopeLabel.text = "Nope"
+        nopeLabel.color = UIColor(red: 0.9, green: 0.29, blue: 0.23, alpha: 1)
+        
+        likeLabel.text = "Like"
+        likeLabel.color = UIColor(red: 0.101, green: 0.737, blue: 0.611, alpha: 1)
     }
 }

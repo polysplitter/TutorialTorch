@@ -42,7 +42,8 @@ class CardStack: UIView {
     }
     
     func setupTransforms(_ percentCompletion: Double) {
-        let translationDelta: CGFloat = 4
+        let translationDelta: CGFloat = 6
+        let imageOffset: CGFloat = 40
         
         for (i, card) in cards.enumerated() {
             if i == 0 { continue; }
@@ -52,16 +53,16 @@ class CardStack: UIView {
             
             if i % 2 == 0 {
                 translationA = CGFloat(i)*translationDelta
-                rotationA = CGFloat(Double.pi)/80*CGFloat(i)
+                rotationA = CGFloat(Double.pi)/imageOffset*CGFloat(i)
                 
                 translationB = -CGFloat(i - 1)*translationDelta
-                rotationB = -CGFloat(Double.pi)/80*CGFloat(i - 1)
+                rotationB = -CGFloat(Double.pi)/imageOffset*CGFloat(i - 1)
             } else {
                 translationA = -CGFloat(i)*translationDelta
-                rotationA = -CGFloat(Double.pi)/80*CGFloat(i)
+                rotationA = -CGFloat(Double.pi)/imageOffset*CGFloat(i)
                 
                 translationB = CGFloat(i - 1)*translationDelta
-                rotationB = CGFloat(Double.pi)/80*CGFloat(i - 1)
+                rotationB = CGFloat(Double.pi)/imageOffset*CGFloat(i - 1)
             }
             
             scaleA = 1-CGFloat(i)*0.05
@@ -90,9 +91,24 @@ class CardStack: UIView {
         percent = min(percent, 1)
         percent = max(percent, -1)
         
-        UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1, options: [], animations: {
+        UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 1, options: [], animations: {
             self.setupTransforms(abs(Double(percent)))
         }, completion: nil)
+        
+        if percent > 0.2 {
+            card.nopeLabel.alpha = 0
+            
+            let newPercent = (percent - 0.2)/0.8
+            card.likeLabel.alpha = newPercent
+        } else if percent < -0.2 {
+            card.likeLabel.alpha = 0
+            
+            let newPercent = (abs(percent) - 0.2)/0.8
+            card.nopeLabel.alpha = newPercent
+        } else {
+            card.likeLabel.alpha = 0
+            card.nopeLabel.alpha = 0
+        }
         
         var transform = CGAffineTransform.identity
         transform = CGAffineTransform(translationX: translation.x, y: translation.y)
@@ -103,6 +119,13 @@ class CardStack: UIView {
         if gesture.state == .ended {
             UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1, options: [], animations: {
                 card.transform = CGAffineTransform.identity
+            }, completion: nil)
+            UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 1, options: [], animations: {
+                self.setupTransforms(0)
+            }, completion: nil)
+            UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
+                card.likeLabel.alpha = 0
+                card.nopeLabel.alpha = 0
             }, completion: nil)
         }
     }
