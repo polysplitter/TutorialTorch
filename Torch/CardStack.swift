@@ -117,12 +117,27 @@ class CardStack: UIView {
         card.transform = transform
         
         if gesture.state == .ended {
-            UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1, options: [], animations: {
-                card.transform = CGAffineTransform.identity
+            let velocity = gesture.velocity(in: self)
+            
+            let normVelX = -velocity.x / translation.x
+            let normVelY = -velocity.y / translation.y
+            
+            UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: normVelX, options: [], animations: {
+                var transform  = CGAffineTransform.identity
+                transform = CGAffineTransform(translationX: 0, y: translation.y)
+                card.transform = transform
             }, completion: nil)
+            
+            UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: normVelY, options: [], animations: {
+                var transform  = CGAffineTransform.identity
+                transform = CGAffineTransform(translationX: 0, y: 0)
+                card.transform = transform
+            }, completion: nil)
+            
             UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 1, options: [], animations: {
                 self.setupTransforms(0)
             }, completion: nil)
+            
             UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
                 card.likeLabel.alpha = 0
                 card.nopeLabel.alpha = 0
